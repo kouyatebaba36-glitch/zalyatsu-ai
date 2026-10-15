@@ -1,0 +1,102 @@
+import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import crypto from 'node:crypto';
+
+const app=express();
+app.set('trust proxy', 1);
+const username = process.env.APP_USERNAME;
+const password = process.env.APP_PASSWORD;
+if (!username || !password || password.length < 16) {
+  throw new Error('Configurez APP_USERNAME et APP_PASSWORD (16 caractères minimum).');
+}
+function equal(a,b) {
+  return crypto.timingSafeEqual(crypto.createHash('sha256').update(a).digest(),crypto.createHash('sha256').update(b).digest());
+}
+app.get('/healthz', (req,res)=>res.json({status:'ok'}));
+app.use(rateLimit({windowMs:60_000,limit:120,standardHeaders:'draft-7',legacyHeaders:false}));
+app.use((req,res,next)=>{
+  const auth=req.headers.authorization || '';
+  const decoded=auth.startsWith('Basic ')?Buffer.from(auth.slice(6),'base64').toString('utf8'):'';
+  const index=decoded.indexOf(':');
+  if(index<0 || !equal(decoded.slice(0,index),username) || !equal(decoded.slice(index+1),password)) {
+    res.set('WWW-Authenticate','Basic realm="ZALYATSU AI", charset="UTF-8"');
+    res.set('Cache-Control','no-store');
+    return res.status(401).send('Accès privé. Identifiants requis.');
+  }
+  res.set('Cache-Control','no-store');
+  next();
+});
+app.disable('x-powered-by');
+app.use(helmet({contentSecurityPolicy:false}));
+app.use(express.json({limit:'30kb'}));
+app.use('/api',rateLimit({windowMs:60_000,limit:30,standardHeaders:'draft-7',legacyHeaders:false}));
+const key=(process.env.HF_API_KEY||process.env.HF_CREDENTIALS||'').trim();
+const models={
+ 'wan/v2.7/text-to-video':{label:'Wan 2.7 · Texte vers vidéo',kind:'text',duration:[2,15]},
+ 'bytedance/seedance-2.0/text-to-video':{label:'Seedance 2.0 · Texte vers vidéo',kind:'text',duration:[5,5]}
+};
+Object.assign(models,{
+ 'higgsfield/genjutsu/motion-transfer/v1.0':{label:'Genjutsu · Transfert de mouvements',kind:'genjutsu'},
+ 'higgsfield/genjutsu/object-swap/v1.0':{label:'Genjutsu · Remplacer un élément',kind:'genjutsu'},
+ 'kling-video/motion-control/pro':{label:'Kling 2.6 · Motion Control Pro',kind:'motion'}
+});
+const jobs=new Map();
+const sessions=new Map();
+const cleanup=setInterval(()=>{
+ const cutoff=Date.now()-24*60*60*1000;
+ for(const [id,time] of sessions) if(time<cutoff)sessions.delete(id);
+ for(const [id,job] of jobs) if(job.created<cutoff)jobs.delete(id);
+},60_000);
+cleanup.unref();
+function session(req,res,next){let id=req.headers['x-zalyatsu-session'];if(typeof id!=='string'||!sessions.has(id)){return res.status(401).json({error:'Session manquante. Rechargez la page.'});}req.sid=id;next()}
+app.get('/api/session',(req,res)=>{const id=crypto.randomUUID();sessions.set(id,Date.now());res.set('Cache-Control','no-store').json({session:id,configured:!!key,models});});
+async function upstream(path,method='GET',body){if(!key)throw Object.assign(new Error('Configurez HF_API_KEY sur le serveur.'),{status:503});const r=await fetch('https://api.higgsfield.ai/'+path,{method,signal:AbortSignal.timeout(30_000),redirect:'error',headers:{Authorization:`Key ${key}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{data={error:'Réponse inattendue du fournisseur.'}}if(!r.ok)throw Object.assign(new Error(`Erreur Higgsfield (${r.status}). Vérifiez la clé, les crédits et le modèle.`),{status:r.status});return data}
+const mediaTypes=['image/jpeg','image/png','image/webp','video/mp4','video/quicktime','video/webm'];
+app.post('/api/upload-url',session,async(req,res)=>{
+ if(!mediaTypes.includes(req.body.content_type))return res.status(400).json({error:'Format accepté : JPG, PNG, WebP, MP4, MOV ou WebM.'});
+ try{const data=await upstream('files/generate-upload-url','POST',{content_type:req.body.content_type});
+ if(!data.upload_url||!data.public_url||!data.upload_url.startsWith('https://')||!data.public_url.startsWith('https://'))throw Error('Upload invalide');
+ res.json({upload_url:data.upload_url,upload_headers:data.upload_headers||{},public_url:data.public_url});
+ }catch{res.status(502).json({error:'Préparation du fichier impossible. Vérifiez la clé Higgsfield.'})}
+});
+function mediaUrl(value){
+ if(typeof value!=='string'||value.length>2083)return false;
+ try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!['localhost','127.0.0.1','[::1]'].includes(u.hostname)}catch{return false}
+}
+app.post('/api/generate',session,async(req,res)=>{
+ try{
+ const {model,prompt='',aspect_ratio,duration,video_url,image_urls,resolution,character_orientation,keep_original_sound}=req.body;
+ const def=models[model];
+ if(!def)return res.status(400).json({error:'Modèle non autorisé.'});
+ if(typeof prompt!=='string'||prompt.length>3000||(def.kind==='text'&&!prompt.trim()))return res.status(400).json({error:'Prompt invalide (maximum 3000 caractères).'});
+ let payload={prompt:prompt.trim()};
+ if(def.kind==='text'){
+ if(!['16:9','9:16','1:1'].includes(aspect_ratio))return res.status(400).json({error:'Format invalide.'});
+ const d=Number(duration);
+ if(model.startsWith('wan/')&&(!Number.isInteger(d)||d<2||d>15))return res.status(400).json({error:'Durée invalide.'});
+ payload={...payload,aspect_ratio,duration:model.startsWith('wan/')?d:5,resolution:'720p',...(model.startsWith('bytedance/')?{generate_audio:true}:{})};
+ }else{
+ if(!mediaUrl(video_url)||!Array.isArray(image_urls)||image_urls.length<1||image_urls.length>(def.kind==='motion'?1:8)||!image_urls.every(mediaUrl))return res.status(400).json({error:'Ajoutez une vidéo et les images de référence requises.'});
+ payload.video_url=video_url;
+ if(def.kind==='genjutsu'){
+ if(!['480p','720p','1080p'].includes(resolution))return res.status(400).json({error:'Résolution invalide.'});
+ payload={...payload,image_urls,resolution};
+ }else{
+ if(!['image','video'].includes(character_orientation)||!['yes','no'].includes(keep_original_sound))return res.status(400).json({error:'Options Motion Control invalides.'});
+ payload={...payload,image_url:image_urls[0],character_orientation,keep_original_sound};
+ }
+ }
+ const data=await upstream(model,'POST',payload);
+ if(!data.request_id)throw Error('Identifiant absent');
+ jobs.set(data.request_id,{sid:req.sid,model,created:Date.now()});res.json({request_id:data.request_id});
+ }catch(e){const status=e.status&&e.status<600?e.status:502;
+ const messages={401:'Clé Higgsfield refusée. Vérifiez HF_API_KEY dans Render.',402:'Crédits API Higgsfield insuffisants.',403:'Accès au modèle refusé par Higgsfield.',422:'Higgsfield refuse les paramètres ou les médias. Vérifiez leurs formats et durées.'};
+ res.status(status).json({error:messages[status]||'Échec Higgsfield. Consultez votre tableau de bord avant de relancer pour éviter une génération en double.'});
+ }
+});
+app.get('/api/jobs/:id',session,async(req,res)=>{const job=jobs.get(req.params.id);if(!job||job.sid!==req.sid)return res.status(404).json({error:'Génération introuvable dans cette session.'});try{res.json(await upstream(`requests/${encodeURIComponent(req.params.id)}/status`))}catch(e){res.status(e.status||502).json({error:'Échec de la requête Higgsfield. Vérifiez la configuration et réessayez après contrôle du tableau de bord fournisseur.'})}});
+app.post('/api/jobs/:id/cancel',session,async(req,res)=>{const job=jobs.get(req.params.id);if(!job||job.sid!==req.sid)return res.status(404).json({error:'Génération introuvable.'});try{res.json(await upstream(`requests/${encodeURIComponent(req.params.id)}/cancel`,'POST'))}catch(e){res.status(e.status||502).json({error:'Échec de la requête Higgsfield. Vérifiez la configuration et réessayez après contrôle du tableau de bord fournisseur.'})}});
+app.use(express.static(new URL('./public/',import.meta.url).pathname));
+app.use((err,req,res,next)=>res.status(400).json({error:'Requête invalide.'}));
+app.listen(process.env.PORT||3000,()=>console.log('ZALYATSU AI prêt sur le port '+(process.env.PORT||3000)));
