@@ -17,12 +17,17 @@ if (!username || !password || password.length < 16) {
 function parseKey(raw) {
   const words = String(raw || '').replace(/["'`]/g, ' ').split(/\s+/).filter(Boolean);
   const pair = words.find(w => /^[\w.-]+:[\w.-]+$/.test(w));
-  return pair || words.find(w => w.toLowerCase() !== 'key') || '';
+  if (pair) return pair;
+  // Identifiant et secret collés séparément (« ID SECRET ») : on les réunit.
+  const id = words.find(w => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(w));
+  const secret = words.find(w => /^[0-9a-f]{32,}$/i.test(w));
+  if (id && secret) return `${id}:${secret}`;
+  return words.find(w => w.toLowerCase() !== 'key') || '';
 }
 const rawKey = process.env.HF_API_KEY || process.env.HF_CREDENTIALS || '';
 const key = parseKey(rawKey);
 if (key && key !== rawKey.trim()) console.warn('[config] HF_API_KEY contenait du texte en trop : seule la clé est utilisée. Corrige la variable dans Render.');
-if (rawKey && !key.includes(':')) console.warn('[config] HF_API_KEY ne ressemble pas à KEY_ID:KEY_SECRET.');
+if (rawKey && !key.includes(':')) console.warn('[config] HF_API_KEY ne ressemble pas à KEY_ID:KEY_SECRET : il manque probablement le secret ou l\'identifiant.');
 // Ne jamais renvoyer la clé (ni ses morceaux) dans un message.
 function redact(text) {
   let t = String(text || '');
