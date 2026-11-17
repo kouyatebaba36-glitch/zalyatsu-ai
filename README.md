@@ -32,7 +32,6 @@ Un test réel nécessite votre clé valide, les crédits et les autorisations de
 La présence d'une clé affiche « API configurée » ; elle ne prouve pas sa validité.
 Pour le premier essai, sélectionnez une vidéo de 5 secondes et vérifiez le résultat.
 Les crédits de génération sont facturés par Higgsfield.
-Cette version propose deux modèles texte-vers-vidéo, sans images ni motion control.
 L'accès est privé par authentification HTTP Basic sur HTTPS : une personne qui
 obtient vos identifiants peut utiliser vos crédits. Ne partagez pas le mot de passe.
 Les sessions et l'historique sont en mémoire : redémarrage ou mise en veille peut
@@ -44,3 +43,20 @@ La disponibilité et les limites du plan gratuit Render sont à vérifier à la 
 Node 20+ : `npm ci`, définir les variables d'environnement, puis `npm start`.
 Le fichier `.env.example` est un modèle uniquement ; `.env` n'est pas chargé automatiquement.
 Ne mettez jamais une vraie clé dans public/, le README ou un commit Git.
+
+## Modèles disponibles (v0.2)
+Le studio propose 25 modèles, répartis en 5 onglets :
+- **Texte → Image** : SOUL V2, SOUL Cinema, SOUL, Qwen Image 3, Z-Image Turbo, Recraft V4.1, Ideogram 4.0, Grok Image 2.0
+- **Image → Image** : Qwen Image 3 Édition, Grok Image 2.0 Édition, Ideogram 4.0 Remix, SOUL avec image de référence
+- **Vidéo** : Seedance 2.5 (texte, image, références), Seedance 2.0, Wan 2.7 (texte, image), Kling 3.0 Pro image → vidéo
+- **Genjutsu** : transfert de mouvement, remplacement d'élément, Restyle (avec choix du style)
+- **Motion Control** : Kling 3.0 Pro et Standard, Kling 2.6 Pro
+
+Les endpoints et paramètres viennent de `catalog.json`, généré depuis la documentation
+officielle (docs.higgsfield.ai) par `npm run catalog`. Pour ajouter un modèle, ajoutez une
+ligne dans `scripts/update-catalog.mjs`, relancez `npm run catalog`, puis committez `catalog.json`.
+Le serveur valide chaque requête contre ce catalogue avant de l'envoyer à Higgsfield.
+
+L'accès réel à chaque modèle dépend de votre clé et de vos crédits : un modèle non autorisé
+renvoie « Ta clé n'a pas accès à ce modèle ».
+Formats de fichiers acceptés par Higgsfield : JPG, PNG, WebP, GIF, MP4 et WAV (pas de MOV).
