@@ -1146,6 +1146,153 @@
    "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/text-to-video"
   },
   {
+   "id": "seedance2-i2v",
+   "endpoint": "bytedance/seedance-2.0/image-to-video",
+   "category": "video",
+   "label": "Seedance 2.0 · Image → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 15
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p",
+      "4k"
+     ]
+    },
+    {
+     "name": "end_image_url",
+     "required": false,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "The prompt is optional. Output framing follows image_url; end_image_url is the optional last frame."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/image-to-video"
+  },
+  {
+   "id": "seedance2-ref",
+   "endpoint": "bytedance/seedance-2.0/reference-to-video",
+   "category": "video",
+   "label": "Seedance 2.0 · Références → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 15
+    },
+    {
+     "name": "audio_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "audio",
+     "minItems": 1,
+     "maxItems": 3
+    },
+    {
+     "name": "image_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 9
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p",
+      "4k"
+     ]
+    },
+    {
+     "name": "video_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "video",
+     "minItems": 1,
+     "maxItems": 3
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "21:9"
+     ]
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "requireOneOf": [
+    "image_urls",
+    "video_urls"
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "Provide a nonempty image_urls or video_urls array. Audio alone does not satisfy the reference requirement. Do not mix reference arrays with image_url, end_image_url or video_url.",
+    "Reference videos may be resized, transcoded and trimmed to 15 seconds each. Reference audio is normalized to 2–15 seconds per file and at most 15 seconds total."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video"
+  },
+  {
    "id": "wan27-t2v",
    "endpoint": "wan/v2.7/text-to-video",
    "category": "video",

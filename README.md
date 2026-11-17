@@ -45,10 +45,10 @@ Le fichier `.env.example` est un modèle uniquement ; `.env` n'est pas chargé a
 Ne mettez jamais une vraie clé dans public/, le README ou un commit Git.
 
 ## Modèles disponibles (v0.2)
-Le studio propose 25 modèles, répartis en 5 onglets :
+Le studio propose 27 modèles, répartis en 5 onglets :
 - **Texte → Image** : SOUL V2, SOUL Cinema, SOUL, Qwen Image 3, Z-Image Turbo, Recraft V4.1, Ideogram 4.0, Grok Image 2.0
 - **Image → Image** : Qwen Image 3 Édition, Grok Image 2.0 Édition, Ideogram 4.0 Remix, SOUL avec image de référence
-- **Vidéo** : Seedance 2.5 (texte, image, références), Seedance 2.0, Wan 2.7 (texte, image), Kling 3.0 Pro image → vidéo
+- **Vidéo** : Seedance 2.5 et Seedance 2.0 (texte, image, références), Wan 2.7 (texte, image), Kling 3.0 Pro image → vidéo
 - **Genjutsu** : transfert de mouvement, remplacement d'élément, Restyle (avec choix du style)
 - **Motion Control** : Kling 3.0 Pro et Standard, Kling 2.6 Pro
 

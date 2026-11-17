@@ -28,6 +28,8 @@ const SELECTION = [
   { page: 'seedance-2-5/image-to-video', id: 'seedance25-i2v', category: 'video', label: 'Seedance 2.5 · Image → vidéo' },
   { page: 'seedance-2-5/reference-to-video', id: 'seedance25-ref', category: 'video', label: 'Seedance 2.5 · Références → vidéo', requireOneOf: ['image_urls', 'video_urls', 'audio_urls'] },
   { page: 'seedance-2/text-to-video', id: 'seedance2-t2v', category: 'video', label: 'Seedance 2.0 · Texte → vidéo' },
+  { page: 'seedance-2/image-to-video', id: 'seedance2-i2v', category: 'video', label: 'Seedance 2.0 · Image → vidéo' },
+  { page: 'seedance-2/reference-to-video', id: 'seedance2-ref', category: 'video', label: 'Seedance 2.0 · Références → vidéo', requireOneOf: ['image_urls', 'video_urls'] },
   { page: 'wan-2-7/text-to-video', id: 'wan27-t2v', category: 'video', label: 'Wan 2.7 · Texte → vidéo' },
   { page: 'wan-2-7/image-to-video', id: 'wan27-i2v', category: 'video', label: 'Wan 2.7 · Image → vidéo' },
   { page: 'kling-3/pro-image-to-video', id: 'kling3-i2v', category: 'video', label: 'Kling 3.0 Pro · Image → vidéo', omit: ['elements', 'multi_prompt', 'multi_shots'] },
