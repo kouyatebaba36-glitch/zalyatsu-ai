@@ -247,6 +247,20 @@ app.get('/api/presets/:model', session, async (req, res) => {
   } catch (e) { sendError(res, e, 'Impossible de charger les styles.'); }
 });
 
+// Prix estimé (en dollars) avant de lancer une génération : POST /estimate/{endpoint}.
+app.post('/api/estimate', session, async (req, res) => {
+  const model = models.get(req.body?.model);
+  if (!model) return res.status(400).json({ error: 'Modèle inconnu.' });
+  let payload;
+  try { payload = buildPayload(model, req.body.params); } catch (e) { return res.status(400).json({ error: e.message }); }
+  try {
+    const data = await upstream(`estimate/${model.endpoint}`, { method: 'POST', body: payload });
+    const usd = Number(data.usd);
+    if (!Number.isFinite(usd) || usd < 0) throw new Error('Estimation invalide');
+    res.json({ usd });
+  } catch (e) { sendError(res, e, 'Prix indisponible pour le moment.'); }
+});
+
 app.post('/api/generate', session, async (req, res) => {
   const model = models.get(req.body?.model);
   if (!model) return res.status(400).json({ error: 'Modèle inconnu.' });

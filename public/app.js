@@ -353,6 +353,7 @@ async function collectParams() {
 function lock(on) {
   state.busy = on;
   $('generate').disabled = on;
+  $('price').disabled = on;
   $('model').disabled = on;
   for (const t of $('tabs').children) t.disabled = on;
   for (const x of $('form').querySelectorAll('input,select,textarea,button')) x.disabled = on;
@@ -368,6 +369,12 @@ $('generate').onclick = async () => {
   $('preview').replaceChildren(el('div', {}, el('div', { className: 'spinner' }), 'Préparation…'));
   try {
     const params = await collectParams();
+    setStatus('Calcul du prix…');
+    const usd = await estimate(m, params);
+    if (usd != null) {
+      const ok = confirm(`Cette génération coûtera environ ${formatUsd(usd)}.\n\nLancer la génération ?`);
+      if (!ok) throw Object.assign(new Error('Génération annulée avant envoi : aucun crédit utilisé.'), { quiet: true });
+    }
     setStatus('Envoi à Higgsfield…');
     const data = await api('/generate', { method: 'POST', body: JSON.stringify({ model: m.id, params, idempotency_key: crypto.randomUUID() }) });
     state.job = { id: data.request_id, model: m, prompt: params.prompt || '' };
@@ -375,6 +382,38 @@ $('generate').onclick = async () => {
     poll(0);
   } catch (e) {
     showError(e);
+    lock(false);
+  }
+};
+
+function formatUsd(usd) {
+  return usd.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: usd < 0.1 ? 3 : 2 });
+}
+
+// Renvoie le prix estimé, ou null si l'estimation est indisponible (la génération reste possible).
+async function estimate(m, params) {
+  try {
+    const { usd } = await api('/estimate', { method: 'POST', body: JSON.stringify({ model: m.id, params }) });
+    return usd;
+  } catch (e) {
+    if (e.status === 400 || e.status === 422 || e.status === 401 || e.status === 403 || e.status === 402) throw e;
+    return null;
+  }
+}
+
+$('price').onclick = async () => {
+  if (state.busy || !state.session) return;
+  setMsg('');
+  lock(true);
+  try {
+    const params = await collectParams();
+    setStatus('Calcul du prix…');
+    const { usd } = await api('/estimate', { method: 'POST', body: JSON.stringify({ model: state.model.id, params }) });
+    setStatus('');
+    setMsg(`Prix estimé : ${formatUsd(usd)} pour cette génération.`);
+  } catch (e) {
+    showError(e);
+  } finally {
     lock(false);
   }
 };
@@ -451,6 +490,7 @@ $('cancel').onclick = async () => {
 function setMsg(text, isError) { $('msg').textContent = text; $('msg').className = 'msg' + (isError ? ' err' : ''); }
 function setStatus(text) { $('status').textContent = text; }
 function showError(e) {
+  if (e.quiet) { setMsg(e.message); setStatus(''); $('preview').className = 'preview'; $('preview').replaceChildren('✦'); return; }
   setMsg(e.message + (e.detail ? ' — ' + e.detail : ''), true);
   setStatus('Erreur.');
   $('preview').className = 'preview';
