@@ -12,7 +12,23 @@ const password = process.env.APP_PASSWORD;
 if (!username || !password || password.length < 16) {
   throw new Error('Configurez APP_USERNAME et APP_PASSWORD (16 caractères minimum).');
 }
-const key = (process.env.HF_API_KEY || process.env.HF_CREDENTIALS || '').trim();
+// Nettoie la clé : retire un éventuel préfixe « Key », les guillemets et tout texte collé
+// par erreur autour (on garde le premier mot de la forme KEY_ID:KEY_SECRET).
+function parseKey(raw) {
+  const words = String(raw || '').replace(/["'`]/g, ' ').split(/\s+/).filter(Boolean);
+  const pair = words.find(w => /^[\w.-]+:[\w.-]+$/.test(w));
+  return pair || words.find(w => w.toLowerCase() !== 'key') || '';
+}
+const rawKey = process.env.HF_API_KEY || process.env.HF_CREDENTIALS || '';
+const key = parseKey(rawKey);
+if (key && key !== rawKey.trim()) console.warn('[config] HF_API_KEY contenait du texte en trop : seule la clé est utilisée. Corrige la variable dans Render.');
+if (rawKey && !key.includes(':')) console.warn('[config] HF_API_KEY ne ressemble pas à KEY_ID:KEY_SECRET.');
+// Ne jamais renvoyer la clé (ni ses morceaux) dans un message.
+function redact(text) {
+  let t = String(text || '');
+  for (const secret of [rawKey.trim(), key, ...key.split(':')]) if (secret && secret.length >= 8) t = t.split(secret).join('[clé masquée]');
+  return t;
+}
 const HF_BASE = (process.env.HF_API_BASE || 'https://api.higgsfield.ai').replace(/\/$/, '');
 
 // Catalogue généré depuis la documentation officielle (scripts/update-catalog.mjs).
@@ -123,17 +139,17 @@ const ERRORS = {
 
 function sendError(res, e, fallback) {
   if (!(e instanceof UpstreamError)) {
-    console.error('[erreur]', e?.message || e);
-    return res.status(502).json({ error: fallback || 'Higgsfield ne répond pas. Vérifie ton tableau de bord avant de relancer.', detail: String(e?.message || '').slice(0, 200) });
+    console.error('[erreur]', redact(e?.message || e));
+    return res.status(502).json({ error: fallback || 'Higgsfield ne répond pas. Vérifie ton tableau de bord avant de relancer.', detail: redact(e?.message).slice(0, 200) });
   }
-  console.error(`[Higgsfield ${e.status}]`, typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail ?? '').slice(0, 300));
+  console.error(`[Higgsfield ${e.status}]`, redact(typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail ?? '')).slice(0, 300));
   const status = e.status >= 400 && e.status < 600 ? e.status : 502;
   let detail = '';
   if (typeof e.detail === 'string') detail = e.detail;
   else if (Array.isArray(e.detail)) detail = e.detail.map(d => [d?.loc?.slice(-1)[0], d?.msg].filter(Boolean).join(' : ')).join(' · ');
   res.status(status).json({
     error: (ERRORS[status] || fallback || 'Échec Higgsfield. Vérifie ton tableau de bord avant de relancer.') + ` (code ${e.status})`,
-    ...(detail && { detail: detail.slice(0, 500) }),
+    ...(detail && { detail: redact(detail).slice(0, 500) }),
   });
 }
 
