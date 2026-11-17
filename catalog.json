@@ -1,0 +1,1814 @@
+{
+ "generated": "2026-11-17",
+ "models": [
+  {
+   "id": "soul-v2",
+   "endpoint": "higgsfield-ai/soul/v2/standard",
+   "category": "image",
+   "label": "SOUL V2",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "9:16",
+      "16:9",
+      "4:3",
+      "3:4",
+      "1:1",
+      "2:3",
+      "3:2"
+     ]
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "enhance_prompt",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000000
+    },
+    {
+     "name": "batch_size",
+     "required": false,
+     "default": 1,
+     "type": "integer",
+     "enum": [
+      1,
+      4
+     ]
+    }
+   ],
+   "notes": [
+    "batch_size is 1 or 4 only. A custom_reference_id must belong to the calling account and have completed training.",
+    "aspect_ratio defaults to 1:1 and enhance_prompt defaults to false. seed defaults to a random integer from 1 to 1000000; explicit null is invalid.",
+    "style_id defaults to 3db34ab5-3439-4317-9e03-08dc30852e69. style_strength is accepted by the request schema but currently has no effect on generation.",
+    "Short prompts using the general style can be enhanced automatically even when enhance_prompt=false.",
+    "When using custom_reference_id, set custom_reference_strength to a value greater than 0 and no greater than 1. The schema accepts 0, but the current runtime fails to process it for a character reference."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/soul-2/generate"
+  },
+  {
+   "id": "soul-cinema",
+   "endpoint": "higgsfield-ai/soul/cinema",
+   "category": "image",
+   "label": "SOUL Cinema",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "9:16",
+      "16:9",
+      "4:3",
+      "3:4",
+      "1:1",
+      "2:3",
+      "3:2"
+     ]
+    },
+    {
+     "name": "enhance_prompt",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000000
+    },
+    {
+     "name": "batch_size",
+     "required": false,
+     "default": 1,
+     "type": "integer",
+     "enum": [
+      1,
+      4
+     ]
+    }
+   ],
+   "notes": [
+    "batch_size is 1 or 4 only. A custom_reference_id must belong to the calling account and have completed training.",
+    "aspect_ratio defaults to 1:1 and enhance_prompt defaults to false. seed defaults to a random integer from 1 to 1000000; explicit null is invalid.",
+    "Providing a custom_reference_id enables prompt enhancement for the character reference, even if enhance_prompt is false.",
+    "Cinema uses a fixed style; client-supplied style_id is ignored.",
+    "This model may be absent from model discovery; authorized requests can use the endpoint ID directly."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/soul-cinema/generate"
+  },
+  {
+   "id": "soul",
+   "endpoint": "higgsfield-ai/soul/standard",
+   "category": "image",
+   "label": "SOUL",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "4:3",
+     "type": "string",
+     "enum": [
+      "9:16",
+      "16:9",
+      "4:3",
+      "3:4",
+      "1:1",
+      "2:3",
+      "3:2"
+     ]
+    },
+    {
+     "name": "enhance_prompt",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000000
+    },
+    {
+     "name": "batch_size",
+     "required": false,
+     "default": 1,
+     "type": "integer",
+     "enum": [
+      1,
+      4
+     ]
+    }
+   ],
+   "notes": [
+    "batch_size is 1 or 4 only. A custom_reference_id must belong to the calling account and have completed training.",
+    "aspect_ratio defaults to 4:3; enhance_prompt defaults to false; style_id defaults to 464ea177-8d40-4940-8d9d-b438bab269c7.",
+    "Optional image_reference_url guides prompt enhancement; it is distinct from custom_reference_id for a trained character.",
+    "seed may be omitted or null; generation selects a random seed when it is absent.",
+    "Short prompts using the general style can be enhanced automatically even when enhance_prompt=false.",
+    "custom_reference_strength=0 uses the selected style's default character strength; it does not disable the character reference."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/soul-standard/generate"
+  },
+  {
+   "id": "qwen-t2i",
+   "endpoint": "alibaba/qwen-image-3/text-to-image",
+   "category": "image",
+   "label": "Qwen Image 3",
+   "output": "images",
+   "fields": [
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "2:3",
+      "3:2",
+      "3:4",
+      "4:3",
+      "7:9",
+      "9:7",
+      "9:16",
+      "16:9",
+      "21:9"
+     ]
+    },
+    {
+     "name": "prompt_extend",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    },
+    {
+     "name": "enable_thinking",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    },
+    {
+     "name": "negative_prompt",
+     "required": false,
+     "type": "string"
+    }
+   ],
+   "notes": [
+    "prompt must contain non-whitespace text. The schema imposes no character maximum; its 4,500-token guidance is advisory.",
+    "enable_thinking defaults to true and requires prompt_extend=true. Set both to false to disable enhancement.",
+    "prompt_extend_mode supports direct or agent. No reference images are accepted by this endpoint.",
+    "resolution is a tier; 2k square maps to 1536 by 1536 pixels, not 2048 by 2048."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image"
+  },
+  {
+   "id": "z-image",
+   "endpoint": "z-image/turbo",
+   "category": "image",
+   "label": "Z-Image Turbo",
+   "output": "images",
+   "fields": [
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 800
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "2:3",
+      "3:2",
+      "3:4",
+      "4:3",
+      "7:9",
+      "9:7",
+      "9:16",
+      "16:9",
+      "21:9"
+     ]
+    },
+    {
+     "name": "prompt_extend",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Text-to-image only. prompt must contain non-whitespace text and at most 800 characters.",
+    "prompt_extend defaults to false; enabling it uses the enhanced pricing tier.",
+    "The schema accepts 1k and 2k tiers, ten aspect ratios, and an optional integer seed from 0 to 2147483647."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/z-image-turbo/generate"
+  },
+  {
+   "id": "recraft",
+   "endpoint": "recraft/v4.1/text-to-image",
+   "category": "image",
+   "label": "Recraft V4.1",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 10000
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "2:1",
+      "1:2",
+      "3:2",
+      "2:3",
+      "4:3",
+      "3:4",
+      "5:4",
+      "4:5",
+      "6:10",
+      "14:10",
+      "10:14",
+      "16:9",
+      "9:16"
+     ]
+    },
+    {
+     "name": "output_format",
+     "required": false,
+     "default": "jpg",
+     "type": "string",
+     "enum": [
+      "jpg",
+      "png",
+      "webp"
+     ]
+    }
+   ],
+   "notes": [
+    "This variant accepts only resolution=1k; use the separate standard/Pro endpoint for the other resolution tier.",
+    "colors is an array of objects shaped as {\"rgb\": [R, G, B]}; background_color is one such object. Every RGB value is an integer 0–255, with exactly three entries.",
+    "output_format is jpg, png, or webp; default is jpg. No reference-image input is declared.",
+    "prompt must contain 1–10000 characters. Fourteen aspect-ratio values are listed in the schema, including 6:10, 14:10, and 10:14."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/recraft-v4-1/text-to-image"
+  },
+  {
+   "id": "ideogram-t2i",
+   "endpoint": "ideogram/v4.0",
+   "category": "image",
+   "label": "Ideogram 4.0",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 2,
+     "maxLength": 2048
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "1:2",
+      "2:1",
+      "2:3",
+      "3:2",
+      "4:5",
+      "5:4",
+      "9:16",
+      "16:9",
+      "5:8",
+      "8:5",
+      "3:4",
+      "4:3",
+      "9:22",
+      "22:9",
+      "9:23",
+      "23:9",
+      "3:8",
+      "8:3",
+      "5:12",
+      "12:5",
+      "1:3",
+      "3:1"
+     ]
+    },
+    {
+     "name": "rendering_speed",
+     "required": false,
+     "default": "DEFAULT",
+     "type": "string",
+     "enum": [
+      "TURBO",
+      "DEFAULT",
+      "QUALITY"
+     ]
+    }
+   ],
+   "notes": [
+    "Omit image_url for text-to-image; provide image_url for remix/editing.",
+    "image_weight controls preservation of the input image and applies to editing requests only; values are integers from 1 to 100.",
+    "The square 1:1 aspect ratio is applied by default, including when an input image is supplied.",
+    "rendering_speed values are case-sensitive: TURBO, DEFAULT, QUALITY. prompt must contain 2–2048 characters."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/ideogram-4/generate"
+  },
+  {
+   "id": "grok-t2i",
+   "endpoint": "xai/grok-imagine-image-2.0",
+   "category": "image",
+   "label": "Grok Image 2.0",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "quality",
+     "required": false,
+     "default": "medium",
+     "type": "string",
+     "enum": [
+      "low",
+      "medium"
+     ]
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "auto",
+     "type": "string",
+     "enum": [
+      "auto",
+      "1:1",
+      "1:2",
+      "2:1",
+      "3:2",
+      "2:3",
+      "4:3",
+      "3:4",
+      "16:9",
+      "9:16"
+     ]
+    }
+   ],
+   "notes": [
+    "Supports both text-to-image and editing: omit image_urls for generation, or supply up to 10 references for editing.",
+    "quality accepts low or medium only; resolution accepts 1k or 2k. aspect_ratio defaults to auto.",
+    "Reference images may be resized during preprocessing before submission. The request produces one image; no batch count is declared."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit"
+  },
+  {
+   "id": "qwen-edit",
+   "endpoint": "alibaba/qwen-image-3/edit",
+   "category": "edit",
+   "label": "Qwen Image 3 · Édition",
+   "output": "images",
+   "fields": [
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "image_urls",
+     "required": true,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 3
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "2:3",
+      "3:2",
+      "3:4",
+      "4:3",
+      "7:9",
+      "9:7",
+      "9:16",
+      "16:9",
+      "21:9"
+     ]
+    },
+    {
+     "name": "prompt_extend",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    },
+    {
+     "name": "enable_thinking",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    },
+    {
+     "name": "negative_prompt",
+     "required": false,
+     "type": "string"
+    }
+   ],
+   "notes": [
+    "Provide 1–3 ordered reference image URLs. The list is required and cannot be empty.",
+    "enable_thinking defaults to true and requires prompt_extend=true. Set both to false to disable enhancement.",
+    "prompt_extend_mode accepts only direct; agent enhancement is unavailable on editing requests.",
+    "prompt must contain non-whitespace text. The 2k square output tier maps to 1536 by 1536 pixels."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/qwen-image-3/edit"
+  },
+  {
+   "id": "grok-edit",
+   "endpoint": "xai/grok-imagine-image-2.0",
+   "category": "edit",
+   "label": "Grok Image 2.0 · Édition",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "quality",
+     "required": false,
+     "default": "medium",
+     "type": "string",
+     "enum": [
+      "low",
+      "medium"
+     ]
+    },
+    {
+     "name": "image_urls",
+     "required": true,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 10
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "1k",
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "auto",
+     "type": "string",
+     "enum": [
+      "auto",
+      "1:1",
+      "1:2",
+      "2:1",
+      "3:2",
+      "2:3",
+      "4:3",
+      "3:4",
+      "16:9",
+      "9:16"
+     ]
+    }
+   ],
+   "notes": [
+    "Supports both text-to-image and editing: omit image_urls for generation, or supply up to 10 references for editing.",
+    "quality accepts low or medium only; resolution accepts 1k or 2k. aspect_ratio defaults to auto.",
+    "Reference images may be resized during preprocessing before submission. The request produces one image; no batch count is declared."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit"
+  },
+  {
+   "id": "ideogram-edit",
+   "endpoint": "ideogram/v4.0",
+   "category": "edit",
+   "label": "Ideogram 4.0 · Remix",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 2,
+     "maxLength": 2048
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "1:1",
+     "type": "string",
+     "enum": [
+      "1:1",
+      "1:2",
+      "2:1",
+      "2:3",
+      "3:2",
+      "4:5",
+      "5:4",
+      "9:16",
+      "16:9",
+      "5:8",
+      "8:5",
+      "3:4",
+      "4:3",
+      "9:22",
+      "22:9",
+      "9:23",
+      "23:9",
+      "3:8",
+      "8:3",
+      "5:12",
+      "12:5",
+      "1:3",
+      "3:1"
+     ]
+    },
+    {
+     "name": "image_weight",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 100
+    },
+    {
+     "name": "rendering_speed",
+     "required": false,
+     "default": "DEFAULT",
+     "type": "string",
+     "enum": [
+      "TURBO",
+      "DEFAULT",
+      "QUALITY"
+     ]
+    }
+   ],
+   "notes": [
+    "Omit image_url for text-to-image; provide image_url for remix/editing.",
+    "image_weight controls preservation of the input image and applies to editing requests only; values are integers from 1 to 100.",
+    "The square 1:1 aspect ratio is applied by default, including when an input image is supplied.",
+    "rendering_speed values are case-sensitive: TURBO, DEFAULT, QUALITY. prompt must contain 2–2048 characters."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/ideogram-4/generate"
+  },
+  {
+   "id": "soul-ref",
+   "endpoint": "higgsfield-ai/soul/standard",
+   "category": "edit",
+   "label": "SOUL · Avec image de référence",
+   "output": "images",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "4:3",
+     "type": "string",
+     "enum": [
+      "9:16",
+      "16:9",
+      "4:3",
+      "3:4",
+      "1:1",
+      "2:3",
+      "3:2"
+     ]
+    },
+    {
+     "name": "enhance_prompt",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000000
+    },
+    {
+     "name": "image_reference_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "batch_size",
+     "required": false,
+     "default": 1,
+     "type": "integer",
+     "enum": [
+      1,
+      4
+     ]
+    }
+   ],
+   "notes": [
+    "batch_size is 1 or 4 only. A custom_reference_id must belong to the calling account and have completed training.",
+    "aspect_ratio defaults to 4:3; enhance_prompt defaults to false; style_id defaults to 464ea177-8d40-4940-8d9d-b438bab269c7.",
+    "Optional image_reference_url guides prompt enhancement; it is distinct from custom_reference_id for a trained character.",
+    "seed may be omitted or null; generation selects a random seed when it is absent.",
+    "Short prompts using the general style can be enhanced automatically even when enhance_prompt=false.",
+    "custom_reference_strength=0 uses the selected style's default character strength; it does not disable the character reference."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/soul-standard/generate"
+  },
+  {
+   "id": "seedance25-t2v",
+   "endpoint": "bytedance/seedance-2.5/text-to-video",
+   "category": "video",
+   "label": "Seedance 2.5 · Texte → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 30
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "21:9"
+     ]
+    },
+    {
+     "name": "bitrate_mode",
+     "required": false,
+     "default": "high",
+     "type": "string",
+     "enum": [
+      "standard",
+      "high"
+     ]
+    },
+    {
+     "name": "output_format",
+     "required": false,
+     "default": "mp4",
+     "type": "string",
+     "enum": [
+      "mp4",
+      "mov"
+     ]
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "Provide a nonblank prompt. This endpoint does not use media inputs; use the image-to-video or reference-to-video endpoint instead."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2-5/text-to-video"
+  },
+  {
+   "id": "seedance25-i2v",
+   "endpoint": "bytedance/seedance-2.5/image-to-video",
+   "category": "video",
+   "label": "Seedance 2.5 · Image → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 30
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "bitrate_mode",
+     "required": false,
+     "default": "high",
+     "type": "string",
+     "enum": [
+      "standard",
+      "high"
+     ]
+    },
+    {
+     "name": "end_image_url",
+     "required": false,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "The prompt is optional. Output framing follows image_url; end_image_url is the optional last frame."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2-5/image-to-video"
+  },
+  {
+   "id": "seedance25-ref",
+   "endpoint": "bytedance/seedance-2.5/reference-to-video",
+   "category": "video",
+   "label": "Seedance 2.5 · Références → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 30
+    },
+    {
+     "name": "audio_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "audio",
+     "minItems": 1,
+     "maxItems": 10
+    },
+    {
+     "name": "image_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 30
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "video_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "video",
+     "minItems": 1,
+     "maxItems": 10
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "21:9"
+     ]
+    },
+    {
+     "name": "bitrate_mode",
+     "required": false,
+     "default": "high",
+     "type": "string",
+     "enum": [
+      "standard",
+      "high"
+     ]
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "requireOneOf": [
+    "image_urls",
+    "video_urls",
+    "audio_urls"
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "Provide at least one nonempty reference array: image_urls, video_urls or audio_urls. Audio-only references are supported by this schema and preprocessing path.",
+    "Reference media are limited to 30 images, 10 videos and 10 audio files, with at most 50 items total. Video duration and audio duration are normalized separately to at most 30 seconds total per media type."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video"
+  },
+  {
+   "id": "seedance2-t2v",
+   "endpoint": "bytedance/seedance-2.0/text-to-video",
+   "category": "video",
+   "label": "Seedance 2.0 · Texte → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 15
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p",
+      "4k"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "21:9"
+     ]
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "Provide a nonblank prompt. This endpoint does not use media inputs; use the image-to-video or reference-to-video endpoint instead."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/text-to-video"
+  },
+  {
+   "id": "seedance2-i2v",
+   "endpoint": "bytedance/seedance-2.0/image-to-video",
+   "category": "video",
+   "label": "Seedance 2.0 · Image → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 15
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p",
+      "4k"
+     ]
+    },
+    {
+     "name": "end_image_url",
+     "required": false,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "The prompt is optional. Output framing follows image_url; end_image_url is the optional last frame."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/image-to-video"
+  },
+  {
+   "id": "seedance2-ref",
+   "endpoint": "bytedance/seedance-2.0/reference-to-video",
+   "category": "video",
+   "label": "Seedance 2.0 · Références → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "minLength": 1
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 15
+    },
+    {
+     "name": "audio_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "audio",
+     "minItems": 1,
+     "maxItems": 3
+    },
+    {
+     "name": "image_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 9
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p",
+      "4k"
+     ]
+    },
+    {
+     "name": "video_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "video",
+     "minItems": 1,
+     "maxItems": 3
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "21:9"
+     ]
+    },
+    {
+     "name": "generate_audio",
+     "required": false,
+     "default": true,
+     "type": "boolean"
+    }
+   ],
+   "requireOneOf": [
+    "image_urls",
+    "video_urls"
+   ],
+   "notes": [
+    "Use publicly accessible media URLs; asset:// references are rejected for these endpoints.",
+    "Provide a nonempty image_urls or video_urls array. Audio alone does not satisfy the reference requirement. Do not mix reference arrays with image_url, end_image_url or video_url.",
+    "Reference videos may be resized, transcoded and trimmed to 15 seconds each. Reference audio is normalized to 2–15 seconds per file and at most 15 seconds total."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video"
+  },
+  {
+   "id": "wan27-t2v",
+   "endpoint": "wan/v2.7/text-to-video",
+   "category": "video",
+   "label": "Wan 2.7 · Texte → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    {
+     "name": "prompt",
+     "required": true,
+     "type": "string"
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 15
+    },
+    {
+     "name": "audio_url",
+     "required": false,
+     "type": "url",
+     "accept": "audio"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "aspect_ratio",
+     "required": false,
+     "default": "16:9",
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1",
+      "4:3",
+      "3:4"
+     ]
+    },
+    {
+     "name": "prompt_extend",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "negative_prompt",
+     "required": false,
+     "type": "string"
+    }
+   ],
+   "notes": [
+    "The prompt must contain text. audio_url can supply driving audio."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/wan-2-7/text-to-video"
+  },
+  {
+   "id": "wan27-i2v",
+   "endpoint": "wan/v2.7/image-to-video",
+   "category": "video",
+   "label": "Wan 2.7 · Image → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "seed",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 2,
+     "maximum": 15
+    },
+    {
+     "name": "audio_url",
+     "required": false,
+     "type": "url",
+     "accept": "audio"
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ]
+    },
+    {
+     "name": "end_image_url",
+     "required": false,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "prompt_extend",
+     "required": false,
+     "default": false,
+     "type": "boolean"
+    },
+    {
+     "name": "negative_prompt",
+     "required": false,
+     "type": "string"
+    }
+   ],
+   "notes": [
+    "The prompt is optional. end_image_url supplies a last frame, and audio_url can supply driving audio."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/wan-2-7/image-to-video"
+  },
+  {
+   "id": "kling3-i2v",
+   "endpoint": "kling-video/v3.0/pro/image-to-video",
+   "category": "video",
+   "label": "Kling 3.0 Pro · Image → vidéo",
+   "output": "video",
+   "fields": [
+    {
+     "name": "sound",
+     "required": false,
+     "default": "on",
+     "type": "string",
+     "enum": [
+      "on",
+      "off"
+     ]
+    },
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "duration",
+     "required": false,
+     "default": 5,
+     "type": "integer",
+     "minimum": 3,
+     "maximum": 15
+    },
+    {
+     "name": "cfg_scale",
+     "required": false,
+     "default": 0.5,
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "last_image_url",
+     "required": false,
+     "type": "url",
+     "accept": "image"
+    }
+   ],
+   "notes": [
+    "image_url is the first frame; last_image_url optionally sets the final frame.",
+    "Always include a non-empty top-level prompt, including when using multi_prompt. Keep it within 2,500 characters; longer prompts are truncated.",
+    "For custom shots, set multi_shots to true and provide 1–6 multi_prompt objects. Each object needs prompt (at most 512 characters) and duration (a positive integer from 1 to 15 seconds).",
+    "Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum. With multi_shots enabled and no custom shots, the top-level duration is retained.",
+    "Native audio uses sound: on or off and defaults to on.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/kling-3/pro-image-to-video"
+  },
+  {
+   "id": "genjutsu-motion",
+   "endpoint": "higgsfield/genjutsu/motion-transfer/v1.0",
+   "category": "genjutsu",
+   "label": "Genjutsu · Transfert de mouvement",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "maxLength": 10000
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "image_urls",
+     "required": true,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 8
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "480p",
+      "1080p"
+     ]
+    }
+   ],
+   "notes": [
+    "Use higgsfield/genjutsu/motion-transfer/v1.0 for new integrations. The legacy endpoint higgsfiled/genjutsu/motion-transfer/v1.0 remains callable for existing clients but is hidden from model discovery.",
+    "The source video must be at least 4 seconds. Videos longer than 30 seconds are trimmed to 30 seconds; output duration follows the prepared source video.",
+    "Provide 1–8 image references. The prompt is optional and defaults to an empty string."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/genjutsu/motion-transfer"
+  },
+  {
+   "id": "genjutsu-swap",
+   "endpoint": "higgsfield/genjutsu/object-swap/v1.0",
+   "category": "genjutsu",
+   "label": "Genjutsu · Remplacer un élément",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "maxLength": 10000
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "image_urls",
+     "required": true,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 1,
+     "maxItems": 8
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "720p",
+      "480p",
+      "1080p"
+     ]
+    }
+   ],
+   "notes": [
+    "Use higgsfield/genjutsu/object-swap/v1.0 for new integrations. The legacy endpoint higgsfiled/genjutsu/object-swap/v1.0 remains callable for existing clients but is hidden from model discovery.",
+    "The source video must be at least 4 seconds. Videos longer than 30 seconds are trimmed to 30 seconds; output duration follows the prepared source video.",
+    "Provide 1–8 image references. The prompt is optional and defaults to an empty string.",
+    "The source video must contain at least 409,600 pixels per frame (width × height)."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/genjutsu/object-swap"
+  },
+  {
+   "id": "genjutsu-restyle",
+   "endpoint": "higgsfield/genjutsu/restyle/v1.0",
+   "category": "genjutsu",
+   "label": "Genjutsu · Restyle",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string",
+     "maxLength": 10000
+    },
+    {
+     "name": "preset_id",
+     "required": true,
+     "type": "string",
+     "format": "uuid"
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "image_urls",
+     "required": false,
+     "type": "urls",
+     "accept": "image",
+     "minItems": 0,
+     "maxItems": 5
+    },
+    {
+     "name": "resolution",
+     "required": false,
+     "default": "720p",
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ]
+    }
+   ],
+   "presets": "higgsfield/genjutsu/restyle/v1.0",
+   "notes": [
+    "Restyle changes the visual style of a source video while retaining its motion, shot composition, and source audio. Each request produces one video.",
+    "Select a current style from GET /models/higgsfield/genjutsu/restyle/v1.0/presets and send its UUID as preset_id. The example UUID below is illustrative of a published preset; fetch the current catalog before submitting.",
+    "The source must be at least 4 seconds and no larger than 200 MiB. Videos longer than 30 seconds are trimmed to their first 30 seconds, including audio.",
+    "Character references are optional: omit image_urls or send [] to restyle the existing source subjects. Supply up to 5 character images to guide their appearance.",
+    "Defaults apply to omitted optional fields. Use [] or an empty string where appropriate; null is not accepted.",
+    "Output framing is derived from the source and animation cadence can depend on the selected style. Exact output duration and FPS may differ from the source."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/genjutsu/restyle"
+  },
+  {
+   "id": "kling3-mc-pro",
+   "endpoint": "kling-video/v3/motion-control/pro",
+   "category": "motion",
+   "label": "Kling 3.0 Motion Control · Pro",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "keep_original_sound",
+     "required": false,
+     "default": "yes",
+     "type": "string",
+     "enum": [
+      "yes",
+      "no"
+     ]
+    },
+    {
+     "name": "character_orientation",
+     "required": false,
+     "default": "video",
+     "type": "string",
+     "enum": [
+      "image",
+      "video"
+     ]
+    }
+   ],
+   "notes": [
+    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
+    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
+    "Videos larger than 100 MB are compressed before generation.",
+    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/pro"
+  },
+  {
+   "id": "kling3-mc-std",
+   "endpoint": "kling-video/v3/motion-control/std",
+   "category": "motion",
+   "label": "Kling 3.0 Motion Control · Standard",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "keep_original_sound",
+     "required": false,
+     "default": "yes",
+     "type": "string",
+     "enum": [
+      "yes",
+      "no"
+     ]
+    },
+    {
+     "name": "character_orientation",
+     "required": false,
+     "default": "video",
+     "type": "string",
+     "enum": [
+      "image",
+      "video"
+     ]
+    }
+   ],
+   "notes": [
+    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
+    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
+    "Videos larger than 100 MB are compressed before generation.",
+    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std"
+  },
+  {
+   "id": "kling26-mc-pro",
+   "endpoint": "kling-video/motion-control/pro",
+   "category": "motion",
+   "label": "Kling 2.6 Motion Control · Pro",
+   "output": "video",
+   "fields": [
+    {
+     "name": "prompt",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "image_url",
+     "required": true,
+     "type": "url",
+     "accept": "image"
+    },
+    {
+     "name": "video_url",
+     "required": true,
+     "type": "url",
+     "accept": "video"
+    },
+    {
+     "name": "keep_original_sound",
+     "required": false,
+     "default": "yes",
+     "type": "string",
+     "enum": [
+      "yes",
+      "no"
+     ]
+    },
+    {
+     "name": "character_orientation",
+     "required": false,
+     "default": "video",
+     "type": "string",
+     "enum": [
+      "image",
+      "video"
+     ]
+    }
+   ],
+   "notes": [
+    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
+    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
+    "Videos larger than 100 MB are compressed before generation.",
+    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "docs": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro"
+  }
+ ]
+}

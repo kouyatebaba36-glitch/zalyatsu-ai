@@ -1,30 +1,117 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZALYATSU AI · Studio créatif</title><style>
-:root{font-family:Inter,system-ui,-apple-system,sans-serif;color:#f5f3ff;background:#090812}*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,5vw,70px);border-bottom:1px solid #262339;background:#0d0b18}.brand{font-size:23px;font-weight:850;letter-spacing:1px}.brand b{color:#b08aff}.pill{padding:8px 13px;border:1px solid #413852;border-radius:30px;color:#c6b9d8;font-size:12px}main{max-width:1140px;margin:auto;padding:40px 22px}h1{font-size:clamp(32px,5vw,54px);margin:0 0 10px;letter-spacing:-1.8px}h1 span{color:#a67cff}p{color:#aaa5be;line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}.panel{background:linear-gradient(150deg,#191527,#11101c);border:1px solid #332b44;border-radius:20px;padding:25px}.panel h2{margin-top:0;font-size:20px}label{display:block;margin:18px 0 8px;font-weight:650;font-size:13px;color:#d4cee4}select,textarea,input{width:100%;background:#0c0a16;color:#fff;border:1px solid #413950;border-radius:12px;padding:13px;font:inherit}textarea{resize:vertical;min-height:145px}button{border:0;border-radius:12px;padding:14px 19px;background:#9261ff;color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#28213b}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.preview{min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #4d3a6c;border-radius:15px;background:radial-gradient(circle at center,#29193e,#0e0c18 75%);overflow:hidden;padding:12px}.preview video,.preview img{max-width:100%;max-height:430px;border-radius:10px}.muted{color:#a9a1bf}.note{background:#19152a;border-radius:14px;padding:14px;margin-top:20px;font-size:13px;color:#bbb1d0}.history{margin-top:26px}.history div{padding:12px;border-bottom:1px solid #332b44;overflow-wrap:anywhere;font-size:13px}a{color:#c3a5ff}@media(max-width:800px){.grid{grid-template-columns:1fr}main{padding-top:28px}header{padding:18px}}</style></head><body><header><div class="brand">✦ ZALYATSU <b>AI</b></div><div class="pill" id="connection">Connexion en cours…</div></header><main><h1>Donne vie à ton <span>imagination.</span></h1><p>Studio créatif propulsé par l'API Higgsfield · Vidéos cinématiques, prompts et suivi de génération.</p><div class="grid"><section class="panel"><h2>✦ Créer une vidéo</h2><label for="model">Modèle IA</label><select id="model"><option value="wan/v2.7/text-to-video">Wan 2.7 · Texte vers vidéo</option><option value="bytedance/seedance-2.0/text-to-video">Seedance 2.0 · Texte vers vidéo</option></select><div id="references" hidden>
-<p id="reference-help"></p>
-<label for="video-file">Vidéo de référence</label><input id="video-file" type="file" accept="video/mp4,video/quicktime,video/webm"><p id="video-state" role="status"></p>
-<label for="image-files">Image(s) de référence</label><input id="image-files" type="file" accept="image/jpeg,image/png,image/webp" multiple><p id="image-state" role="status"></p>
-<div id="genjutsu-options"><label for="resolution">Résolution</label><select id="resolution"><option>720p</option><option>480p</option><option>1080p</option></select></div>
-<div id="motion-options" hidden><label for="orientation">Orientation du personnage</label><select id="orientation"><option value="video">Suivre la vidéo</option><option value="image">Suivre l’image</option></select><label for="sound">Conserver le son original</label><select id="sound"><option value="yes">Oui</option><option value="no">Non</option></select></div>
-</div><div id="text-options"><label for="ratio">Format</label><select id="ratio"><option>9:16</option><option>16:9</option><option>1:1</option></select><label for="duration">Durée (Wan)</label><select id="duration"><option>5</option><option>10</option><option>15</option></select></div><label for="prompt">Décris ta scène</label><textarea id="prompt" placeholder="Exemple : Une femme élégante marche dans les rues de Paris au coucher du soleil, caméra cinématique stabilisée, détails réalistes…"></textarea><div class="actions"><button id="generate">Générer la vidéo ✦</button><button class="secondary" id="cancel" disabled>Annuler</button></div><div class="note">🔒 La clé API reste sur le serveur. Les générations peuvent consommer des crédits Higgsfield.</div></section><section class="panel"><h2>Résultat de génération</h2><div class="preview" id="preview"><div class="muted">Ta prochaine création apparaîtra ici.</div></div><p id="status">En attente d'une génération.</p><div class="actions" id="downloads"></div><h2 class="history">Historique de cette session</h2><div id="history" class="muted">Aucune création pour le moment.</div></section></div><p style="font-size:12px">Genjutsu et Motion Control · Les références sont envoyées à Higgsfield. Télécharge tes résultats pour les conserver.</p></main><script>
-let session='',current='',poller=null,catalog={};const $=id=>document.getElementById(id);async function api(path,options={}){const r=await fetch('/api'+path,{...options,headers:{'Content-Type':'application/json','X-Zalyatsu-Session':session,...options.headers}});const data=await r.json();if(!r.ok)throw Error(data.error||'Erreur réseau');return data}async function init(){try{const r=await fetch('/api/session');const data=await r.json();session=data.session;catalog=data.models;$('model').replaceChildren(...Object.entries(catalog).map(([id,def])=>new Option(def.label,id)));updateMode();$('connection').textContent=data.configured?'● API configurée':'○ API non configurée'}catch{$('connection').textContent='Connexion impossible'}}init();
-function updateMode(){const kind=catalog[$('model').value]?.kind||'text';$('references').hidden=kind==='text';$('text-options').hidden=kind!=='text';$('genjutsu-options').hidden=kind!=='genjutsu';$('motion-options').hidden=kind!=='motion';$('image-files').multiple=kind==='genjutsu';$('duration').disabled=$('model').value.includes('seedance');$('reference-help').textContent=kind==='genjutsu'?'Genjutsu : vidéo de 4 à 30 secondes et 1 à 8 images. Les vidéos plus longues sont limitées à 30 secondes. Object Swap : au moins 409 600 pixels par image de la vidéo.':'Motion Control : une photo du personnage et une vidéo montrant le mouvement à reproduire.';}
-$('model').onchange=updateMode;
-async function upload(file){
- const ext=file.name.split('.').pop().toLowerCase();const mime=file.type||({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',mp4:'video/mp4',mov:'video/quicktime',webm:'video/webm'})[ext];
- if(!file.size||file.size>100*1024*1024)throw Error('Chaque fichier doit peser entre 1 octet et 100 Mo.');
- const slot=await api('/upload-url',{method:'POST',body:JSON.stringify({content_type:mime})});
- const r=await fetch(slot.upload_url,{method:'PUT',headers:slot.upload_headers,body:file,credentials:'omit',redirect:'error'});
- if(!r.ok)throw Error('Envoi du fichier impossible. Réessayez avec un JPG/PNG ou un MP4.');
- return slot.public_url;
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zalyatsu">
+<title>ZALYATSU AI · Studio</title>
+<style>
+:root{
+  --bg:#090812;--panel:#13101f;--panel2:#1a1529;--line:#2e2742;--line2:#40365a;
+  --ink:#f5f3ff;--ink2:#b9b1cf;--ink3:#8a82a3;--accent:#9a6bff;--accent2:#c3a5ff;
+  --ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--r:14px;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);
 }
-async function referencePayload(){const kind=catalog[$('model').value]?.kind;if(kind==='text')return {};
- const video=$('video-file').files[0],images=[...$('image-files').files];
- if(!video||!images.length||images.length>(kind==='motion'?1:8))throw Error(kind==='motion'?'Choisis une vidéo et exactement une image.':'Choisis une vidéo et 1 à 8 images.');
- $('status').textContent='Envoi des références à Higgsfield…';
- $('video-state').textContent='Envoi en cours…';const video_url=await upload(video);$('video-state').textContent='Vidéo envoyée.';
- const image_urls=[];for(const file of images){$('image-state').textContent='Envoi image '+(image_urls.length+1)+' / '+images.length;image_urls.push(await upload(file))}$('image-state').textContent=images.length+' image(s) envoyée(s).';
- return {video_url,image_urls,resolution:$('resolution').value,character_orientation:$('orientation').value,keep_original_sound:$('sound').value};
-}
-$('generate').onclick=async()=>{if(!session)return alert('Session indisponible.');if(catalog[$('model').value]?.kind==='text'&&!$('prompt').value.trim())return alert('Écris un prompt.');clearInterval(poller);$('generate').disabled=true;$('model').disabled=true;$('video-file').disabled=true;$('image-files').disabled=true;$('status').textContent='Envoi à Higgsfield…';$('preview').textContent='Génération en cours…';$('downloads').replaceChildren();try{const references=await referencePayload();$('status').textContent='Envoi de la génération à Higgsfield…';const data=await api('/generate',{method:'POST',body:JSON.stringify({...references,model:$('model').value,prompt:$('prompt').value,aspect_ratio:$('ratio').value,duration:Number($('duration').value)})});current=data.request_id;$('cancel').disabled=false;$('history').insertAdjacentHTML('afterbegin','<div>⏳ '+current.replace(/[^a-zA-Z0-9_-]/g,'')+'</div>');const check=async()=>{try{const result=await api('/jobs/'+encodeURIComponent(current));$('status').textContent='Statut : '+(result.status||'en cours');if(['completed','failed','nsfw','canceled'].includes(result.status)){clearInterval(poller);$('generate').disabled=false;$('model').disabled=false;$('video-file').disabled=false;$('image-files').disabled=false;$('cancel').disabled=true;if(result.status==='completed'){const url=result.video?.url||result.images?.[0]?.url;if(url&&/^https:\/\//.test(url)){const media=document.createElement(result.video?'video':'img');media.src=url;if(result.video){media.controls=true;media.playsInline=true}$('preview').replaceChildren(media);const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Ouvrir le résultat ↗';$('downloads').replaceChildren(a)}else $('preview').textContent='Terminé : aucun média retourné.'}else $('preview').textContent='La génération s’est terminée sans résultat.'}}catch(e){clearInterval(poller);$('generate').disabled=false;$('model').disabled=false;$('video-file').disabled=false;$('image-files').disabled=false;$('cancel').disabled=true;$('status').textContent=e.message}};await check();if(!$('generate').disabled) return;poller=setInterval(check,5000)}catch(e){$('status').textContent=e.message;$('generate').disabled=false;$('model').disabled=false;$('video-file').disabled=false;$('image-files').disabled=false;$('cancel').disabled=true}};
-$('cancel').onclick=async()=>{if(!current)return;try{await api('/jobs/'+encodeURIComponent(current)+'/cancel',{method:'POST'});$('status').textContent='Annulation demandée.'}catch(e){$('status').textContent=e.message}};
-</script></body></html>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 80% -10%,#24164a 0,transparent 60%),var(--bg)}
+button,select,input,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px clamp(16px,4vw,48px);border-bottom:1px solid var(--line);background:rgba(13,11,24,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+.brand{font-size:20px;font-weight:850;letter-spacing:1px;white-space:nowrap}.brand b{color:var(--accent)}
+.pill{padding:6px 12px;border:1px solid var(--line2);border-radius:99px;color:var(--ink2);font-size:12px;white-space:nowrap}
+.pill.ok{color:var(--ok);border-color:#1f5137}.pill.bad{color:var(--bad);border-color:#5b2330}
+main{max-width:1240px;margin:auto;padding:24px 16px 60px}
+nav.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid var(--line2);background:var(--panel);border-radius:99px;padding:10px 16px;font-weight:650;font-size:14px;cursor:pointer;color:var(--ink2)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:20px}
+.panel h2{margin:0 0 4px;font-size:18px}
+label.f{display:block;margin:16px 0 7px;font-weight:650;font-size:13px;color:#ddd6ef}
+label.f small{font-weight:500;color:var(--ink3)}
+select,textarea,input[type=number],input[type=text]{width:100%;background:#0c0a16;border:1px solid var(--line2);border-radius:12px;padding:11px 12px}
+textarea{resize:vertical;min-height:120px;line-height:1.5}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.check{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px;color:var(--ink2);cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.notes{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#110e1d;border:1px solid var(--line);font-size:12.5px;color:var(--ink3);line-height:1.5}
+.notes summary{cursor:pointer;color:var(--ink2);font-weight:600}
+.notes ul{margin:8px 0 0;padding-left:18px}
+.drop{border:1px dashed var(--line2);border-radius:12px;padding:12px;background:#0c0a16}
+.drop input[type=file]{width:100%;font-size:13px;color:var(--ink2)}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.thumbs .t{position:relative;width:64px;height:64px;border-radius:9px;overflow:hidden;background:#1d1830;border:1px solid var(--line2);display:grid;place-items:center;font-size:11px;color:var(--ink3);text-align:center}
+.thumbs .t img,.thumbs .t video{width:100%;height:100%;object-fit:cover}
+.thumbs .t button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:260px;overflow:auto;padding:2px}
+.preset{border:2px solid transparent;border-radius:11px;background:#0c0a16;padding:0;cursor:pointer;overflow:hidden;text-align:left}
+.preset img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#1d1830}
+.preset span{display:block;font-size:11px;padding:5px 6px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preset[aria-pressed="true"]{border-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.btn{border:0;border-radius:12px;padding:13px 18px;background:var(--accent);color:#fff;font-weight:750;cursor:pointer}
+.btn.main{flex:1}
+.btn.sec{background:#28213b;color:var(--ink2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin-top:12px;font-size:13.5px;color:var(--ink2);min-height:1.2em}
+.msg.err{color:var(--bad)}
+.preview{min-height:320px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;text-align:center;border:1px dashed var(--line2);border-radius:15px;background:radial-gradient(circle at center,#22173a,#0e0c18 75%);padding:12px;color:var(--ink3);margin-top:12px}
+.preview img,.preview video{max-width:100%;max-height:520px;border-radius:10px}
+.preview.many img{max-width:calc(50% - 5px)}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line2);border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.links a{color:var(--accent2);font-size:14px}
+.history{margin-top:26px}
+.history h3{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.history h3 button{font-size:12px;background:none;border:0;color:var(--ink3);cursor:pointer;text-decoration:underline}
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.hist a{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0c0a16;text-decoration:none;color:var(--ink2)}
+.hist .m{aspect-ratio:1;display:grid;place-items:center;background:#1a1529;font-size:26px}
+.hist img,.hist video{width:100%;height:100%;object-fit:cover;display:block}
+.hist span{display:block;font-size:11px;padding:6px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{color:var(--ink3);font-size:13px}
+footer{color:var(--ink3);font-size:12px;margin-top:24px;line-height:1.6}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+@media(max-width:420px){.row{grid-template-columns:1fr}.brand{font-size:17px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✦ ZALYATSU <b>AI</b></div>
+  <div class="pill" id="connection">Connexion…</div>
+</header>
+<main>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <div class="grid">
+    <section class="panel" aria-labelledby="form-title">
+      <h2 id="form-title">Créer</h2>
+      <label class="f" for="model">Modèle</label>
+      <select id="model"></select>
+      <details class="notes" id="notes" hidden><summary>Conseils pour ce modèle</summary><ul id="notes-list"></ul></details>
+      <form id="form" novalidate></form>
+      <div class="actions">
+        <button class="btn main" id="generate" type="button">Générer ✦</button>
+        <button class="btn sec" id="cancel" type="button" disabled>Annuler</button>
+      </div>
+      <p class="msg" id="msg" role="status"></p>
+    </section>
+    <section class="panel" aria-labelledby="res-title">
+      <h2 id="res-title">Résultat</h2>
+      <p class="msg" id="status">Ta prochaine création apparaîtra ici.</p>
+      <div class="preview" id="preview">✦</div>
+      <div class="links" id="links"></div>
+      <div class="history">
+        <h3>Mes créations <button type="button" id="clear-history">Effacer</button></h3>
+        <div class="hist" id="history"></div>
+      </div>
+    </section>
+  </div>
+  <footer>🔒 Ta clé API reste sur le serveur. Chaque génération consomme des crédits Higgsfield. Les fichiers générés restent disponibles au moins 7 jours chez Higgsfield : télécharge ceux que tu veux garder.</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
