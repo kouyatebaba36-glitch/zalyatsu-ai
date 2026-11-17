@@ -307,7 +307,12 @@ async function loadPresets(model) {
 async function uploadFile(item) {
   if (item.url) return item.url;
   const slot = await api('/upload-url', { method: 'POST', body: JSON.stringify({ content_type: item.type }) });
-  const r = await fetch(slot.upload_url, { method: 'PUT', headers: slot.upload_headers, body: item.file, credentials: 'omit' });
+  let r;
+  try {
+    r = await fetch(slot.upload_url, { method: 'PUT', headers: slot.upload_headers, body: item.file, credentials: 'omit' });
+  } catch {
+    throw new Error(`Envoi de ${item.file.name} bloqué par le réseau. Réessaie en Wi-Fi ou avec un fichier plus léger.`);
+  }
   if (!r.ok) throw new Error(`Envoi de ${item.file.name} impossible (${r.status}).`);
   item.url = slot.public_url;
   return item.url;

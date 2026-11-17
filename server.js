@@ -123,15 +123,16 @@ const ERRORS = {
 
 function sendError(res, e, fallback) {
   if (!(e instanceof UpstreamError)) {
-    console.error(e);
-    return res.status(502).json({ error: fallback || 'Higgsfield ne répond pas. Vérifie ton tableau de bord avant de relancer.' });
+    console.error('[erreur]', e?.message || e);
+    return res.status(502).json({ error: fallback || 'Higgsfield ne répond pas. Vérifie ton tableau de bord avant de relancer.', detail: String(e?.message || '').slice(0, 200) });
   }
+  console.error(`[Higgsfield ${e.status}]`, typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail ?? '').slice(0, 300));
   const status = e.status >= 400 && e.status < 600 ? e.status : 502;
   let detail = '';
   if (typeof e.detail === 'string') detail = e.detail;
   else if (Array.isArray(e.detail)) detail = e.detail.map(d => [d?.loc?.slice(-1)[0], d?.msg].filter(Boolean).join(' : ')).join(' · ');
   res.status(status).json({
-    error: ERRORS[status] || fallback || 'Échec Higgsfield. Vérifie ton tableau de bord avant de relancer.',
+    error: (ERRORS[status] || fallback || 'Échec Higgsfield. Vérifie ton tableau de bord avant de relancer.') + ` (code ${e.status})`,
     ...(detail && { detail: detail.slice(0, 500) }),
   });
 }
@@ -145,6 +146,10 @@ function isMediaUrl(v) {
     const u = new URL(v);
     return u.protocol === 'https:' && !u.username && !u.password && !/^(localhost|127\.|10\.|192\.168\.|\[)/.test(u.hostname);
   } catch { return false; }
+}
+function isUploadUrl(v) {
+  if (typeof v !== 'string' || v.length > 16000) return false;
+  try { const u = new URL(v); return u.protocol === 'https:' && !u.username && !u.password; } catch { return false; }
 }
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const empty = v => v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0);
@@ -226,7 +231,9 @@ app.post('/api/upload-url', session, async (req, res) => {
   if (!ALL_UPLOAD_TYPES.includes(type)) return res.status(400).json({ error: 'Formats acceptés : JPG, PNG, WebP, GIF, MP4 et WAV.' });
   try {
     const data = await upstream('files/generate-upload-url', { method: 'POST', body: { content_type: type } });
-    if (!isMediaUrl(data.upload_url) || !isMediaUrl(data.public_url)) throw new Error('URL de dépôt invalide');
+    // Les URL de dépôt présignées sont souvent longues (> 2083 caractères) : contrôle dédié.
+    if (!isUploadUrl(data.upload_url)) throw new Error(`upload_url invalide (${String(data.upload_url).slice(0, 60)}…)`);
+    if (!isMediaUrl(data.public_url)) throw new Error(`public_url invalide (${String(data.public_url).slice(0, 60)}…)`);
     res.json({ upload_url: data.upload_url, upload_headers: data.upload_headers || { 'Content-Type': type }, public_url: data.public_url });
   } catch (e) { sendError(res, e, "Impossible de préparer l'envoi du fichier."); }
 });
